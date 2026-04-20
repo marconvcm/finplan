@@ -8,7 +8,7 @@ import { User } from "@/lib/models/User";
 import { QuickAddModal } from "@/components/transactions/quick-add-modal";
 import { formatMoney } from "@/lib/utils";
 import { CashflowChart } from "@/components/charts/cashflow-chart";
-import { generateRecurringTransactionsAction } from "@/lib/actions/recurring-actions";
+import { generateRecurringTransactionsForUser } from "@/lib/recurring-generator";
 import { getCurrentUser, getUserLedgers } from "@/lib/server-data";
 
 type AggRow = { _id: "income" | "expense"; total: number };
@@ -37,7 +37,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   if (!user?._id) return null;
   await dbConnect();
 
-  await generateRecurringTransactionsAction();
+  await generateRecurringTransactionsForUser(String(user._id));
 
   const ledgers = (await getUserLedgers(String(user._id))) as unknown as LedgerRow[];
   const activeLedger = ledgerId || String(ledgers[0]?._id || "");
