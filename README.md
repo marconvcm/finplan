@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FinLedger
 
-## Getting Started
+Production-ready personal finance tracker built with **Next.js 15 App Router**, **Bun**, **Auth0**, and **MongoDB Atlas**.
 
-First, run the development server:
+## Features
+
+- Auth0 login/signup/logout (email/password + social providers configured in Auth0)
+- Protected app routes (everything except landing page)
+- Multi-ledger system (unlimited ledgers, per-ledger currency + starting balance)
+- Transaction CRUD with filters/search/pagination
+- Quick Add modal + keyboard shortcut (`Cmd/Ctrl + K`)
+- Recurring entries (daily, weekly, bi-weekly, monthly, quarterly, yearly)
+- On-demand recurring generation when dashboard loads
+- Dashboard stats + mini charts (Recharts)
+- Monthly/yearly reports + CSV export
+- Dark mode and responsive UI
+- Zod validation + strict TypeScript
+
+## 1) Prerequisites
+
+- Bun `>=1.2`
+- MongoDB Atlas database
+- Auth0 tenant + application
+
+## 2) Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 3) Environment setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+APP_BASE_URL=http://localhost:3000
+AUTH0_DOMAIN=your-tenant.us.auth0.com
+AUTH0_CLIENT_ID=your_client_id
+AUTH0_CLIENT_SECRET=your_client_secret
+AUTH0_SECRET=long_32+_byte_random_value
+AUTH0_AUDIENCE=
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/finledger
+```
 
-## Learn More
+## 4) Auth0 configuration
 
-To learn more about Next.js, take a look at the following resources:
+In **Auth0 Dashboard → Applications → Your App**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Allowed Callback URLs: `http://localhost:3000/auth/callback`
+- Allowed Logout URLs: `http://localhost:3000`
+- Allowed Web Origins: `http://localhost:3000`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+For social login, enable providers under **Authentication → Social** and turn on the connection for this app.
 
-## Deploy on Vercel
+## 5) Seed default categories
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+bun run seed
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 6) Run
+
+```bash
+bun run dev
+```
+
+Open `http://localhost:3000`.
+
+## Project Structure
+
+- `app/` App Router pages/layouts
+- `lib/db` Mongo connection
+- `lib/models` Mongoose models
+- `lib/actions` Server Actions (all mutations)
+- `components/` UI and feature components
+- `scripts/seed-categories.ts` seed script
+
+## Notes
+
+- Mutations are implemented via Server Actions (`"use server"`).
+- Recurring entries are generated on-demand when dashboard is loaded. For cron, call `generateRecurringTransactionsAction` from a scheduled job.
